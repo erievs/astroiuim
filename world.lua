@@ -10,7 +10,7 @@ local Player = require("player")
 function World.load()
     World.tileSize = 16 
     World.mapWidth = 5000  / World.tileSize  
-    World.mapHeight = 900 / World.tileSize  
+    World.mapHeight = 1000 / World.tileSize  
     World.tiles = {}
 
     World.generateTerrain()

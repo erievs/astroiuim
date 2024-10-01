@@ -3,9 +3,13 @@ local Textures = require("textures")
 local World = require("world")
 local Control = require("controls")
 local Camera = require("camera")  
-
+local RustyKnife = require("items.rustyknife")  
+local Ui = require("ui")
+local LuaRockPickaxe = require("items.luarockpickaxe")
 local currentState = "title"
 local camera  
+local hotbar  
+local ui 
 
 function love.load()
     Textures.load()   
@@ -13,16 +17,21 @@ function love.load()
     Player.load(World) 
     camera = Camera.new()  
 
-    local Beater3000 = require("items.beater3000")
-    local beater3000 = Beater3000.new(Textures.beater3000)  
+    local rustyknife = RustyKnife.new() 
 
-    table.insert(Player.inventory, beater3000) 
+    local luarockpickaxe = LuaRockPickaxe.new() 
+
+    Player.addItem(rustyknife, 1)
+    Player.addItem(luarockpickaxe, 2) 
+
+    ui = Ui.new(Player.inventory)  
+
+
 end
 
 function love.update(dt)
     if currentState == "game" then
         Player.update(dt)
-
         camera:update(Player)
     end
 end
@@ -33,13 +42,28 @@ function love.draw()
     elseif currentState == "game" then
         camera:apply()  
         World.draw()      
-        Player.draw()     
+        Player.draw()   
 
+        Player.logInventory()
+
+
+        love.graphics.push() 
+        love.graphics.origin()  
+        ui:draw(100)  
+        love.graphics.pop()
         
     end
+
 end
 
 function love.keypressed(key)
+
+    if key >= "1" and key <= "5" then
+        local itemIndex = tonumber(key)  
+            Player.currentItemIndex = itemIndex 
+            ui:selectItem(itemIndex)
+    end
+
     currentState = Control.handleKeyPress(key, currentState, World)  
 end
 
@@ -47,7 +71,7 @@ function drawTitleScreen()
     love.graphics.clear(0.1, 0.1, 0.1)  
     love.graphics.setColor(1, 1, 1)  
     love.graphics.setFont(love.graphics.newFont(48))  
-    love.graphics.printf("My Game Title", 0, love.graphics.getHeight() / 4, love.graphics.getWidth(), "center")  
+    love.graphics.printf("Astroium", 0, love.graphics.getHeight() / 4, love.graphics.getWidth(), "center")  
     love.graphics.setFont(love.graphics.newFont(24))  
     love.graphics.printf("Press Enter to Start", 0, love.graphics.getHeight() / 2, love.graphics.getWidth(), "center")  
 end
