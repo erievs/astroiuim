@@ -6,6 +6,7 @@ local Camera = require("camera")
 local RustyKnife = require("items.rustyknife")  
 local Ui = require("ui")
 local LuaRockPickaxe = require("items.luarockpickaxe")
+local EnvironmentManager = require("environmentmanager")
 local currentState = "title"
 local camera  
 local hotbar  
@@ -16,6 +17,8 @@ function love.load()
     World.load()      
     Player.load(World) 
     camera = Camera.new()  
+
+    EnvironmentManager:init()
 
     local rustyknife = RustyKnife.new() 
 
@@ -31,8 +34,10 @@ end
 
 function love.update(dt)
     if currentState == "game" then
-        Player.update(dt)
+        Player.update(dt, world)
         camera:update(Player)
+        EnvironmentManager:update(dt)
+
     end
 end
 
@@ -41,12 +46,14 @@ function love.draw()
         drawTitleScreen()  
     elseif currentState == "game" then
         camera:apply()  
+        EnvironmentManager:draw()
         World.draw()      
+        
         Player.draw()   
 
-        Player.logInventory()
-
-
+     
+ 
+  
         love.graphics.push() 
         love.graphics.origin()  
         ui:draw(100)  

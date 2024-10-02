@@ -11,47 +11,33 @@ function RustyKnife.new()
     self.damage = 10
     self.swingState = "stopped"    
     self.swingAngle = 0            
-    self.tier = 0
-    self.xScale = 1  
-    self.yScale = 1  
-    self.swingDuration = 0.5       
-    self.cooldownDuration = 2.5    
+    self.tier = 2
+    self.xScale = 0.75
+    self.yScale = 0.75
+    self.swingDuration = 1.0       
+    self.cooldownDuration = 1.5    
     self.timer = 0                 
-    self.swingSpeed = math.rad(60) / (self.swingDuration / 2)  
+    self.swingSpeed = math.rad(180) / self.swingDuration  
     self.maxSwingAngle = math.rad(30)  
     self.isCoolingDown = false     
     self.texture = Textures.rightRustyKnifeTexture 
+
+    self.swooshSound = love.audio.newSource("assets/swoosh.wav", "static") 
+
     return self
 end
 
 function RustyKnife:use(direction)  
-    if self.isCoolingDown then
+    if self.isCoolingDown or self.swingState ~= "stopped" then
         return
     end
 
-    if self.swingState == "stopped" then
-        print("Swinged RustyKnife!")
-        self.swingState = "forward"  
-        self.timer = 0               
-    end
+    print("Swinged RustyKnife!")
 
-    if self.swingState == "forward" then
-        self.swingAngle = self.swingAngle + self.swingSpeed
-        if self.swingAngle >= self.maxSwingAngle then
-            self.swingAngle = self.maxSwingAngle
-            self.swingState = "backward"  
-        end
-    elseif self.swingState == "backward" then
-        self.swingAngle = self.swingAngle - self.swingSpeed
-        if self.swingAngle <= 0 then
-            self.swingAngle = 0
-            self.swingState = "stopped"  
-            self.isCoolingDown = true    
-            self.timer = 0               
-        end
-    end
+    self.swooshSound:play() 
 
-    self.rotation = self.swingAngle * (direction == "right" and 1 or -1)
+    self.swingState = "forward"  
+    self.timer = 0               
 end
 
 function RustyKnife:update(dt)
@@ -60,9 +46,26 @@ function RustyKnife:update(dt)
         if self.timer >= self.cooldownDuration then
             self.isCoolingDown = false  
         end
-    elseif self.swingState ~= "stopped" then
-        self.timer = self.timer + dt
+    elseif self.swingState == "forward" then
+        -- Gradually increase the swing angle
+        self.swingAngle = self.swingAngle + self.swingSpeed * dt
+        if self.swingAngle >= self.maxSwingAngle then
+            self.swingAngle = self.maxSwingAngle
+            self.swingState = "backward"  
+        end
+    elseif self.swingState == "backward" then
+        -- Gradually decrease the swing angle
+        self.swingAngle = self.swingAngle - self.swingSpeed * dt * 1.5  
+        if self.swingAngle <= 0 then
+            self.swingAngle = 0
+            self.swingState = "stopped"  
+            self.isCoolingDown = true    
+            self.timer = 0               
+        end
     end
+
+    -- Calculate rotation based on the current swing angle
+    self.rotation = self.swingAngle * (direction == "right" and 1 or -1)
 end
 
 function RustyKnife:draw(playerX, playerY, direction)

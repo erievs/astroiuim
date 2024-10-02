@@ -32,6 +32,11 @@ function Ui:draw(y)
     local startX = 50  
     local adjustedY = y - 25  
 
+    -- Draw the black rectangle background for the hotbar
+    love.graphics.setColor(0, 0, 0, 1)  -- Set color to black
+    love.graphics.rectangle("fill", startX - 2, adjustedY - 2, (slotSize + slotSpacing) * numSlots + slotSpacing, slotSize + 4)  
+    love.graphics.setColor(1, 1, 1, 1)  -- Reset color to white
+
     for i = 1, numSlots do
         local item = self.hotbarTextures[i]
         local slotX = startX + (i - 1) * (slotSize + slotSpacing)  
@@ -51,14 +56,13 @@ function Ui:draw(y)
 
             love.graphics.draw(item.texture, centeredX, centeredY, 0, 1, 1)  
         else
-
             love.graphics.setColor(0.5, 0.5, 0.5, 1)  
             love.graphics.rectangle("fill", slotX, adjustedY, slotSize, slotSize)  
-
         end
     end
 
     love.graphics.setColor(1, 1, 1, 1)  
 end
+
 
 return Ui
